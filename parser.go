@@ -7,10 +7,17 @@ import (
 	"golang.org/x/net/html"
 )
 
+// Link struct represents a parsed anchor tag.
+// The Href fields maps directly to the href atrribute
+// of an anchor tag. The Text field represents all
+// text content contained inside the anchor tag, including
+// text in other elements.
 type Link struct {
 	Href, Text string
 }
 
+// Parse returns a slice of Link from
+// a valid html io.Reader.
 func Parse(r io.Reader) ([]Link, error) {
 	root, err := html.Parse(r)
 	if err != nil {
@@ -19,6 +26,9 @@ func Parse(r io.Reader) ([]Link, error) {
 	return traverse(root), nil
 }
 
+// traverse recursively traverses node and 
+// searches for all anchor tags, anchor tags
+// found are parsed into Links.
 func traverse(node *html.Node) []Link {
 	var links []Link
 	if isAnchorNode(node) {
@@ -47,6 +57,8 @@ func getHref(node *html.Node) string {
 	return ""
 }
 
+// getText uses DFS to search and collect
+// all valid text context in node.
 func getText(node *html.Node) string {
 	var res string
 	for next := node; next != nil; next = next.NextSibling {
@@ -61,6 +73,8 @@ func getText(node *html.Node) string {
 	return res
 }
 
+// cleanText removes all unneeded whitespaces and 
+// newlines while leaving valid spaces untouched.
 func cleanText(text string) string {
 	text = strings.ReplaceAll(text, "\n", "")
 	trimmed := strings.TrimSpace(text)
